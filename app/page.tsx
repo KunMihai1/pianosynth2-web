@@ -168,11 +168,11 @@ export default function Home() {
             ))}
             {/* Black keys — positioned absolutely between white keys */}
             {[
-              { left: 29 },   // between key 0-1
-              { left: 71 },   // between key 1-2
-              { left: 155 },  // between key 3-4
-              { left: 197 },  // between key 4-5
-              { left: 239 },  // between key 5-6
+              { left: 29 },
+              { left: 71 },
+              { left: 155 },
+              { left: 197 },
+              { left: 239 },
             ].map((pos, i) => (
               <motion.div
                 key={`black-${i}`}
