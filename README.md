@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PianoSynth2 Web App
+
+A web interface for PianoSynth2 players — log in, manage your account, and purchase in-game items.
+
+## Features
+- User authentication (login & signup) via Supabase
+- In-game item purchases and account management
+- Responsive and interactive UI built with Next.js and Tailwind CSS
+- Toast notifications for success/error messages
+
+## Tech Stack
+- Next.js 13 (App Router)
+- React + TypeScript
+- Supabase (Auth & Database)
+- Tailwind CSS
+- Framer Motion (animations)
+- React Hot Toast (UI notifications)
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone the repository:
 ```bash
+git clone https://github.com/KunMihai1/pianosynth2-web.git
+cd pianosynth2-web
+
+2. Install dependencies:
+npm install
+# or yarn
+
+3. Create a .env.local file in the project root with your Supabase keys:
+
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+4. Run the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+# or yarn dev
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## **6️. Deployment**
+```markdown
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The app can be deployed to Vercel:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Connect your GitHub repo to Vercel.
+2. Add environment variables in Vercel settings (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY).
+3. Deploy the project — Vercel handles builds automatically.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 7. Usage
+- Visit the web app
+- Sign up or log in
+- Buy in-game items and manage your account
