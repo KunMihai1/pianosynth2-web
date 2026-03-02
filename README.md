@@ -43,9 +43,9 @@ npm run dev
 
 ---
 
-## **6️. Deployment**
-```markdown
-## Deployment
+```
+
+## 6. Deployment
 
 The app can be deployed to Vercel:
 
