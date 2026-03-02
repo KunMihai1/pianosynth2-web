@@ -18,8 +18,9 @@ A web interface for PianoSynth2 players — log in, manage your account, and pur
 
 ## Getting Started
 
-1. Clone the repository:
+
 ```bash
+1. Clone the repository:
 git clone https://github.com/KunMihai1/pianosynth2-web.git
 cd pianosynth2-web
 
