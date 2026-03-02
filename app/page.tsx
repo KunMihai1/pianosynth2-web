@@ -258,45 +258,66 @@ export default function Home() {
       </section>
 
       {/* ─── HELP / FAQ SECTION ─── */}
-      <section id="help" className="relative py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold">
-              Need{' '}
-              <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                Help?
-              </span>
-            </h2>
-            <p className="mt-4 text-purple-200/50">Common questions answered.</p>
-          </motion.div>
+          <section id="help" className="relative py-24 px-6">
+              <div className="max-w-3xl mx-auto">
+                  <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6 }}
+                      className="text-center mb-12"
+                  >
+                      <h2 className="text-3xl sm:text-4xl font-bold">
+                          Need{' '}
+                          <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                              Help?
+                          </span>
+                      </h2>
+                      <p className="mt-4 text-purple-200/50">Common questions answered.</p>
+                  </motion.div>
 
-          <div className="space-y-4">
-            {[
-              { q: 'What MIDI devices are supported?', a: 'PianoSynth2 supports all standard MIDI controllers. Simply connect your device and it will be automatically detected.' },
-              { q: 'Is there a free plan?', a: 'Yes! PianoSynth2 is entirely free to use.' },
-              { q: 'Can I use it offline?', a: 'Absolutely. The desktop app works fully offline. But your progress, including playtime and in-game currency won\'t save for now.' },
-            ].map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:bg-white/[0.05] transition-colors"
-              >
-                <h3 className="font-semibold text-white text-sm mb-2">{faq.q}</h3>
-                <p className="text-sm text-purple-200/50 leading-relaxed">{faq.a}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+                  {/* FAQ Items */}
+                  <div className="space-y-4 mb-8">
+                      {[
+                          { q: 'What MIDI devices are supported?', a: 'PianoSynth2 supports all standard MIDI controllers. Simply connect your device and it will be automatically detected.' },
+                          { q: 'Is there a free plan?', a: 'Yes! PianoSynth2 is entirely free to use.' },
+                          { q: 'Can I use it offline?', a: 'Absolutely. The desktop app works fully offline. But your progress, including playtime and in-game currency won\'t save for now.' },
+                      ].map((faq, i) => (
+                          <motion.div
+                              key={i}
+                              initial={{ opacity: 0, y: 15 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ delay: i * 0.1, duration: 0.5 }}
+                              className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 hover:bg-white/[0.05] transition-colors"
+                          >
+                              <h3 className="font-semibold text-white text-sm mb-2">{faq.q}</h3>
+                              <p className="text-sm text-purple-200/50 leading-relaxed">{faq.a}</p>
+                          </motion.div>
+                      ))}
+                  </div>
+
+                  {}
+                  <div className="text-center">
+                      <motion.a
+                          href="#contact" 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.97 }}
+                          className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-shadow"
+                      >
+                          Have a Question? Contact Us
+                          <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                          >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-4.586 4.586M14.752 11.168L9.502 6.918M14.752 11.168H3" />
+                          </svg>
+                      </motion.a>
+                  </div>
+              </div>
+          </section>
 
       {/* ─── CTA SECTION ─── */}
       <section className="relative py-24 px-6">
@@ -366,10 +387,9 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-6 text-sm text-purple-200/40">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
-          </div>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            </div>
         </div>
       </footer>
     </div>

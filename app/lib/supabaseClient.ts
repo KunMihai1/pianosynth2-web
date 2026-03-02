@@ -1,4 +1,4 @@
-'use client'; // <- ensures this module runs in client only
+﻿'use client';
 
 import { createClient } from '@supabase/supabase-js';
 
