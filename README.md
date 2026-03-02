@@ -40,7 +40,7 @@ npm run dev
 
 5. Open http://localhost:3000 in your browser.
 
-## 6. Deployment
+6. Deployment
 
 The app can be deployed to Vercel:
 
@@ -49,7 +49,7 @@ The app can be deployed to Vercel:
 3. Deploy the project — Vercel handles builds automatically.
 
 
-## 7. Usage
+7. Usage
 - Visit the web app
 - Sign up or log in
 - Buy in-game items and manage your account
