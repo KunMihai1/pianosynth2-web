@@ -2,26 +2,60 @@
 
 import Card from '../../../components/ui/Card';
 import { useState, useEffect } from 'react';
+import { fetchAllNameBalancePlaytime, getUserSession } from '../../../lib/supabaseApi';
+import { formatPlaytime } from '../../../lib/utils';
 
-const dummyPlayers = [
-    { name: 'Alice', playtime: 120, currency: 500 },
-    { name: 'Bob', playtime: 90, currency: 300 },
-    { name: 'Charlie', playtime: 60, currency: 200 },
-    { name: 'Dave', playtime: 150, currency: 700 },
-];
+type PlayerProfile = {
+    user_id: string;
+    display_name: string;
+    total_playtime_seconds: number;
+    wallet_balance: number;
+};
 
 export default function TopPlayersPage() {
     const [sortBy, setSortBy] = useState<'playtime' | 'currency'>('playtime');
-    const [sortedPlayers, setSortedPlayers] = useState(dummyPlayers);
+    const [players, setPlayers] = useState<{ name: string; playtime: number; currency: number }[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
+    // Fetch all profiles on mount
     useEffect(() => {
-        const sorted = [...dummyPlayers].sort((a, b) => b[sortBy] - a[sortBy]);
-        setSortedPlayers(sorted);
-    }, [sortBy]);
+        async function loadPlayers() {
+            try {
+                setLoading(true);
+                const session = await getUserSession();
+                if (!session) throw new Error('User not logged in');
 
-    const maxValue = sortedPlayers[0][sortBy]; // for progress bars
-    const totalPlaytime = dummyPlayers.reduce((sum, p) => sum + p.playtime, 0);
-    const totalCurrency = dummyPlayers.reduce((sum, p) => sum + p.currency, 0);
+                const profiles: PlayerProfile[] = await fetchAllNameBalancePlaytime(session.token);
+
+                setPlayers(
+                    profiles.map((p) => ({
+                        name: p.display_name ?? 'Unknown',
+                        playtime: p.total_playtime_seconds,
+                        currency: p.wallet_balance,
+                    }))
+                );
+            } catch (err: any) {
+                console.error(err);
+                setError(err.message || 'Failed to load players');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadPlayers();
+    }, []);
+
+    // Sort players when sortBy changes
+    const sortedPlayers = [...players].sort((a, b) => b[sortBy] - a[sortBy]);
+
+    if (loading) return <p className="p-6 text-white">Loading players...</p>;
+    if (error) return <p className="p-6 text-red-500">Error: {error}</p>;
+    if (sortedPlayers.length === 0) return <p className="p-6 text-white">No players found.</p>;
+
+    const maxValue = sortedPlayers[0][sortBy];
+    const totalPlaytime = players.reduce((sum, p) => sum + p.playtime, 0);
+    const totalCurrency = players.reduce((sum, p) => sum + p.currency, 0);
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 text-white flex">
@@ -31,11 +65,11 @@ export default function TopPlayersPage() {
                 <h2 className="text-xl font-bold">Stats Summary</h2>
                 <Card className="p-4 flex justify-between">
                     <span>Total Players: </span>
-                    <span>{dummyPlayers.length}</span>
+                    <span>{players.length}</span>
                 </Card>
                 <Card className="p-4 flex justify-between">
                     <span>Total Playtime: </span>
-                    <span>{totalPlaytime} hrs</span>
+                    <span>{formatPlaytime(totalPlaytime)}</span>
                 </Card>
                 <Card className="p-4 flex justify-between">
                     <span>Total Currency: </span>
@@ -68,7 +102,7 @@ export default function TopPlayersPage() {
                 <div className="space-y-4">
                     {sortedPlayers.map((player, i) => (
                         <Card
-                            key={player.name}
+                            key={player.name + i}
                             className="flex justify-between items-center p-4 transition-transform hover:scale-105 hover:shadow-xl"
                         >
                             <div className="flex items-center gap-3">
@@ -93,7 +127,7 @@ export default function TopPlayersPage() {
                             <div className="flex flex-col items-end w-40">
                                 {/* Mini stats */}
                                 <div className="flex gap-2 text-sm text-purple-200">
-                                    <span>⏱ {player.playtime} hrs</span>
+                                    <span>⏱ {formatPlaytime(player.playtime)}</span>
                                     <span>💰 {player.currency}</span>
                                 </div>
 
@@ -101,10 +135,10 @@ export default function TopPlayersPage() {
                                 <div className="w-full bg-slate-700 h-4 rounded-full mt-2 relative">
                                     <div
                                         className={`h-4 rounded-full transition-all ${sortBy === 'playtime' ? 'bg-green-500' : 'bg-yellow-500'}`}
-                                        style={{ width: `${(player[sortBy] / maxValue) * 100}%` }}
+                                        style={{ width: `${maxValue > 0 ? (player[sortBy] / maxValue) * 100 : 0}%` }}
                                     ></div>
                                     <span className="absolute right-2 top-0 text-xs font-semibold text-white">
-                                        {player[sortBy]} {sortBy === 'playtime' ? 'hrs' : '💰'}
+                                        {sortBy === 'playtime' ? `${formatPlaytime(player.playtime)}` : `💰 ${player.currency}`}
                                     </span>
                                 </div>
                             </div>
@@ -117,13 +151,13 @@ export default function TopPlayersPage() {
             <aside className="w-64 p-6 bg-slate-800 flex flex-col gap-6">
                 <h2 className="text-xl font-bold">Top 3 Players</h2>
                 {sortedPlayers.slice(0, 3).map((player, i) => (
-                    <Card key={player.name} className="p-4 flex flex-col items-center">
+                    <Card key={player.name + i} className="p-4 flex flex-col items-center">
                         <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center text-white text-lg font-bold mb-2">
                             {player.name.charAt(0)}
                         </div>
                         <span className="font-semibold">{player.name}</span>
                         <span className="text-purple-200 text-sm">
-                            {sortBy === 'playtime' ? `⏱ ${player.playtime} hrs` : `💰 ${player.currency}`}
+                            {sortBy === 'playtime' ? `⏱ ${formatPlaytime(player.playtime)}` : `💰 ${player.currency}`}
                         </span>
                         <span className="text-2xl mt-1">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
                     </Card>

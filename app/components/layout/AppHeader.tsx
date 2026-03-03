@@ -4,7 +4,11 @@ import Link from 'next/link';
 import { useState } from 'react';
 import ProfileMenu from './ProfileMenu';
 
-export default function AppHeader() {
+type AppHeaderProps = {
+    username?: string;
+};
+
+export default function AppHeader({ username }: AppHeaderProps) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     return (
@@ -24,7 +28,7 @@ export default function AppHeader() {
                     onClick={() => setMenuOpen(!menuOpen)}
                     className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold"
                 >
-                    U
+                    {username?.charAt(0) ?? "U"}
                 </button>
                 {menuOpen && <ProfileMenu />}
             </div>

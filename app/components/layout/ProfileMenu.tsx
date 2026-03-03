@@ -17,8 +17,8 @@ export default function ProfileMenu() {
                     </Link>
                 </li>
                 <li>
-                    <Link href="/help" className="block px-4 py-2 hover:bg-slate-700">
-                        Help
+                    <Link href="/login" className="block px-4 py-2 hover:bg-slate-700">
+                        Log out
                     </Link>
                 </li>
             </ul>

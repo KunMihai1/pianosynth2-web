@@ -3,7 +3,7 @@
 import { supabase } from "./supabaseClient";
 
 /** Call the Edge Function to fetch user profile */
-export async function fetchUserProfile(userId: string, token:string) {
+export async function fetchUserNameBalancePlaytime(userId: string, token: string) {
 
     if (!token) throw new Error("User not logged in");
 
@@ -25,15 +25,39 @@ export async function fetchUserProfile(userId: string, token:string) {
     }
 
     const data = await res.json();
-    return data.profile; // { total_playtime_seconds, wallet_balance }
+    return data.profile; // { name,total_playtime_seconds, wallet_balance }
 }
 
-export async function fetchAllProfiles(token:string) {
+export async function fetchUserAllStats(userId: string, token: string) {
+    if (!token) throw new Error("User not logged in");
+
+    const res = await fetch(
+        "https://ecmlftmkoqszdwjugqtn.supabase.co/functions/v1/get-all-user-stats",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`, // JWT for auth
+            },
+            body: JSON.stringify({ user_id: userId }),
+        }
+    );
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? `Fetch failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.profile;
+}
+
+export async function fetchAllNameBalancePlaytime(token: string) {
 
     if (!token) throw new Error("User not logged in");
 
     const res = await fetch(
-        "https://ecmlftmkoqszdwjugqtn.supabase.co/functions/v1/get-all-profile-stats",
+        "https://ecmlftmkoqszdwjugqtn.supabase.co/functions/v1/get-playtime-balance-all",
         {
             method: "GET",
             headers: {
@@ -47,8 +71,79 @@ export async function fetchAllProfiles(token:string) {
     return data.profiles; // array of { user_id, total_playtime_seconds, wallet_balance }
 }
 
+export async function fetchShopItems(userId: string, token: string) {
+    if (!token) throw new Error("User not logged in");
 
-async function getUserSession() {
+    const res = await fetch(
+        "https://ecmlftmkoqszdwjugqtn.supabase.co/functions/v1/get-shop-items",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`, // JWT for auth
+            },
+            body: JSON.stringify({ user_id: userId }),
+        }
+    );
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? `Fetch failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.shopItems; // array of { id, name, price, owned }
+}
+
+export async function purchaseItem(userId: string, itemId: string, token: string) {
+    if (!token) throw new Error("User not logged in");
+
+    const res = await fetch(
+        "https://ecmlftmkoqszdwjugqtn.supabase.co/functions/v1/purchase-item",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`, // JWT for auth
+            },
+            body: JSON.stringify({ user_id: userId, item_id: itemId }),
+        }
+    );
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? `Purchase failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.success; // boolean
+}
+
+export async function downloadItem(itemId: string, token: string) {
+    if (!token) throw new Error("User not logged in");
+
+    const res = await fetch(
+        "https://ecmlftmkoqszdwjugqtn.supabase.co/functions/v1/download-item",
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+            body: JSON.stringify({ itemId }),
+        }
+    );
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? `Download failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    return { signedUrl: data.signedUrl, fileName: data.fileName };
+}
+
+export async function getUserSession() {
     const { data: { session }, error } = await supabase.auth.getSession();
 
     if (!session || error) {
@@ -56,8 +151,8 @@ async function getUserSession() {
         return;
     }
 
-    const userId = session.user.id;          
-    const token = session.access_token;       
+    const userId = session.user.id;
+    const token = session.access_token;
 
     console.log("User ID:", userId);
     console.log("JWT:", token);

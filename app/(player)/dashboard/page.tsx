@@ -5,14 +5,16 @@ import AppHeader from '../../components/layout/AppHeader';
 import QuickActions from '../../components/dashboard/QuickActions';
 import UserInfo from '../../components/dashboard/UserInfo';
 import RecentActivity from '../../components/dashboard/RecentActivity';
-
-import { supabase } from '../../lib/supabaseClient';
-import { fetchUserProfile } from '../../lib/supabaseApi';
+import { formatPlaytime } from '../../lib/utils';
+import { fetchUserNameBalancePlaytime, getUserSession } from '../../lib/supabaseApi';
 
 type UserProfileData = {
     total_playtime_seconds: number;
     wallet_balance: number;
+    display_name: string;
 };
+
+
 
 export default function DashboardPage() {
     const [user, setUser] = useState<{ username: string; playtime: number; currency: number } | null>(null);
@@ -20,12 +22,12 @@ export default function DashboardPage() {
     const [error, setError] = useState<string | null>(null);
 
     const recentActivities = [
-        { type: 'play', description: 'Played "Fur Elise"', date: '2026-03-02' },
-        { type: 'achievement', description: 'Unlocked "Piano Pro Level 1"', date: '2026-03-01' },
-        { type: 'purchase', description: 'Bought "Grand Piano Skin"', date: '2026-02-28' },
+        { type: 'play' as const, description: 'Played "Fur Elise"', date: '2026-03-02' },
+        { type: 'achievement' as const, description: 'Unlocked "Piano Pro Level 1"', date: '2026-03-01' },
+        { type: 'purchase' as const, description: 'Bought "Grand Piano Skin"', date: '2026-02-28' },
     ];
 
-    // 1️⃣ Get session + fetch profile
+
     useEffect(() => {
         async function loadProfile() {
             try {
@@ -38,11 +40,12 @@ export default function DashboardPage() {
                 const { userId, token } = sessionData;
 
                 // Fetch profile from your Supabase Edge Function
-                const profile: UserProfileData = await fetchUserProfile(userId, token);
+                const profile: UserProfileData = await fetchUserNameBalancePlaytime(userId, token);
+                console.log("Profile response:", profile);
 
                 // Update state
                 setUser({
-                    username: sessionData.userId, // Or email if you want
+                    username: profile.display_name ?? sessionData.userId,
                     playtime: profile.total_playtime_seconds,
                     currency: profile.wallet_balance,
                 });
@@ -63,13 +66,13 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-white">
-            <AppHeader />
+            <AppHeader username={user?.username} />
 
             <main className="max-w-4xl mx-auto p-6 space-y-6">
                 {user && (
                     <UserInfo
                         username={user.username}
-                        playtime={user.playtime}
+                        playtime={formatPlaytime(user.playtime)}
                         currency={user.currency}
                     />
                 )}
@@ -80,22 +83,4 @@ export default function DashboardPage() {
             </main>
         </div>
     );
-}
-
-// Make sure getUserSession() is imported or declared in this file
-async function getUserSession() {
-    const { data: { session }, error } = await supabase.auth.getSession();
-
-    if (!session || error) {
-        console.log("Not logged in or error:", error);
-        return;
-    }
-
-    const userId = session.user.id;
-    const token = session.access_token;
-
-    console.log("User ID:", userId);
-    console.log("JWT:", token);
-
-    return { userId, token };
 }
