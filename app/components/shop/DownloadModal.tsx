@@ -91,7 +91,7 @@ const DownloadModal: FC<DownloadModalProps> = ({
 
                     {/* Title */}
                     <h3 className="text-xl font-bold text-white text-center mb-1">
-                        Purchase Successful!
+                        Purchase Confirmed!
                     </h3>
                     <p className="text-slate-400 text-sm text-center mb-5">
                         Your file is ready to download

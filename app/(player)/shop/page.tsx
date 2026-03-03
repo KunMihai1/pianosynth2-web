@@ -9,6 +9,8 @@ import DownloadModal from '../../components/shop/DownloadModal';
 import { ShopItem } from '../../components/shop/types/shop';
 import { fetchShopItems, fetchUserNameBalancePlaytime, purchaseItem, downloadItem } from '../../lib/supabaseApi';
 import { getUserSession } from '../../lib/supabaseApi';
+import { requireAuth } from '@/app/lib/auth';
+import { useRouter } from 'next/navigation';
 
 type UserData = {
     wallet_balance: number;
@@ -38,12 +40,18 @@ export default function ShopPage() {
     // Download modal state
     const [downloadInfo, setDownloadInfo] = useState<DownloadInfo | null>(null);
 
+
+    const router = useRouter();
+
     useEffect(() => {
         async function loadShop() {
             setLoading(true);
             try {
-                const sessionData = await getUserSession();
-                if (!sessionData) throw new Error('User not logged in');
+                const sessionData = await requireAuth();
+                if (!sessionData) {
+                    router.replace('/login');
+                    return;
+                }
 
                 const { userId, token } = sessionData;
                 setToken(token);

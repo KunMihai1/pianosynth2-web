@@ -4,6 +4,10 @@ import Card from '../../../components/ui/Card';
 import { useState, useEffect } from 'react';
 import { fetchAllNameBalancePlaytime, getUserSession } from '../../../lib/supabaseApi';
 import { formatPlaytime } from '../../../lib/utils';
+import { LucideCoins } from 'lucide-react';
+import { requireAuth } from '@/app/lib/auth';
+import { useRouter } from 'next/navigation';
+import { formatCoins } from '@/app/lib/utils';
 
 type PlayerProfile = {
     user_id: string;
@@ -18,13 +22,17 @@ export default function TopPlayersPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Fetch all profiles on mount
+    const router = useRouter();
+
     useEffect(() => {
         async function loadPlayers() {
             try {
                 setLoading(true);
-                const session = await getUserSession();
-                if (!session) throw new Error('User not logged in');
+                const session = await requireAuth();
+                if (!session) {
+                    router.replace('/login');
+                    return;
+                }
 
                 const profiles: PlayerProfile[] = await fetchAllNameBalancePlaytime(session.token);
 
@@ -57,23 +65,33 @@ export default function TopPlayersPage() {
     const totalPlaytime = players.reduce((sum, p) => sum + p.playtime, 0);
     const totalCurrency = players.reduce((sum, p) => sum + p.currency, 0);
 
+    const renderLucidCoins = (amount: number) => (
+        <span className="flex items-center gap-1 whitespace-nowrap">
+            <LucideCoins size={16} className="text-yellow-400" />
+            <span className="font-bold text-yellow-300">
+                {formatCoins(amount)}
+            </span>
+            <span className="text-slate-400 text-sm">coins</span>
+        </span>
+    );
+
     return (
         <div className="min-h-screen bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 text-white flex">
 
             {/* Left sidebar */}
             <aside className="w-64 p-6 bg-slate-800 flex flex-col gap-6">
                 <h2 className="text-xl font-bold">Stats Summary</h2>
-                <Card className="p-4 flex justify-between">
+                <Card className="p-4 flex justify-between items-center min-w-0">
                     <span>Total Players: </span>
                     <span>{players.length}</span>
                 </Card>
-                <Card className="p-4 flex justify-between">
+                <Card className="p-4 flex justify-between items-center min-w-0">
                     <span>Total Playtime: </span>
                     <span>{formatPlaytime(totalPlaytime)}</span>
                 </Card>
-                <Card className="p-4 flex justify-between">
-                    <span>Total Currency: </span>
-                    <span>💰 {totalCurrency}</span>
+                <Card className="p-4 flex justify-between items-center">
+                    <span>Total Currency:</span>
+                    {renderLucidCoins(totalCurrency)}
                 </Card>
             </aside>
 
@@ -128,17 +146,23 @@ export default function TopPlayersPage() {
                                 {/* Mini stats */}
                                 <div className="flex gap-2 text-sm text-purple-200">
                                     <span>⏱ {formatPlaytime(player.playtime)}</span>
-                                    <span>💰 {player.currency}</span>
+                                    {renderLucidCoins(player.currency)}
                                 </div>
 
                                 {/* Progress bar with labels */}
                                 <div className="w-full bg-slate-700 h-4 rounded-full mt-2 relative">
+                                    {/* Filled part of the bar */}
                                     <div
-                                        className={`h-4 rounded-full transition-all ${sortBy === 'playtime' ? 'bg-green-500' : 'bg-yellow-500'}`}
+                                        className={`h-4 rounded-full transition-all ${sortBy === 'playtime' ? 'bg-green-700' : 'bg-rose-700'}`}
                                         style={{ width: `${maxValue > 0 ? (player[sortBy] / maxValue) * 100 : 0}%` }}
                                     ></div>
-                                    <span className="absolute right-2 top-0 text-xs font-semibold text-white">
-                                        {sortBy === 'playtime' ? `${formatPlaytime(player.playtime)}` : `💰 ${player.currency}`}
+
+                                    {/* Label in the middle */}
+                                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-amber-400 flex items-center gap-1">
+                                        {sortBy === 'playtime'
+                                            ? formatPlaytime(player.playtime)
+                                            : renderLucidCoins(player.currency)
+                                        }
                                     </span>
                                 </div>
                             </div>
@@ -157,7 +181,7 @@ export default function TopPlayersPage() {
                         </div>
                         <span className="font-semibold">{player.name}</span>
                         <span className="text-purple-200 text-sm">
-                            {sortBy === 'playtime' ? `⏱ ${formatPlaytime(player.playtime)}` : `💰 ${player.currency}`}
+                            {sortBy === 'playtime' ? `⏱ ${formatPlaytime(player.playtime)}` : renderLucidCoins(player.currency)}
                         </span>
                         <span className="text-2xl mt-1">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
                     </Card>

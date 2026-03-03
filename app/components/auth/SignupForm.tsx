@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -16,6 +16,25 @@ export default function SignupForm() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [session, setSession] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setSession(!!session);
+        };
+        checkSession();
+    }, []);
+
+    const handleSignIn = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (session) {
+            router.push('/dashboard');
+        } else {
+            router.push('/login');
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -149,12 +168,13 @@ export default function SignupForm() {
                     className="text-center text-sm text-purple-300/70"
                 >
                     Already have an account?{' '}
-                    <Link
-                        href="/login"
+                    <button
+                        onClick={handleSignIn}
                         className="text-purple-400 hover:text-purple-300 font-medium transition-colors"
                     >
-                        Sign in
-                    </Link>
+                        Sign In
+                    </button>
+
                 </motion.p>
             </div>
         </motion.div>

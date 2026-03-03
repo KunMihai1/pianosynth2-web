@@ -6,3 +6,9 @@ export function formatPlaytime(seconds: number): string {
     const s = seconds % 60;
     return `${h}h ${m}m ${s}s`;
 }
+
+export const formatCoins = (amount: number) =>
+    new Intl.NumberFormat('en', {
+        notation: 'compact',
+        maximumFractionDigits: 1,
+    }).format(amount);

@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { supabase } from '@/app/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
     { label: 'Features', href: '#features' },
@@ -13,6 +15,26 @@ const navItems = [
 
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    const router = useRouter();
+    const [session, setSession] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setSession(!!session);
+        };
+        checkSession();
+    }, []);
+
+    const handleSignIn = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (session) {
+            router.push('/dashboard');
+        } else {
+            router.push('/login');
+        }
+    };
 
     return (
         <motion.nav
@@ -59,12 +81,12 @@ export default function Navbar() {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.7 }}
                         >
-                            <Link
-                                href="/login"
+                            <button
+                                onClick={handleSignIn}
                                 className="px-4 py-2 text-sm text-purple-200 hover:text-white transition-colors"
                             >
                                 Sign In
-                            </Link>
+                            </button>
                         </motion.div>
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -117,12 +139,12 @@ export default function Navbar() {
                                     </a>
                                 ))}
                                 <hr className="border-white/10 my-2" />
-                                <Link
-                                    href="/login"
+                                <button
+                                    onClick={handleSignIn}
                                     className="block px-4 py-3 text-sm text-purple-200 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                                 >
                                     Sign In
-                                </Link>
+                                </button>
                                 <Link
                                     href="/signup"
                                     className="block px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-center"

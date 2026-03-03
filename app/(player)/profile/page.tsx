@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { fetchUserAllStats, getUserSession } from '../../lib/supabaseApi';
 import { formatPlaytime } from '../../lib/utils';
 import { LucideCoins } from 'lucide-react';
-
+import { requireAuth } from '@/app/lib/auth';
+import { useRouter } from 'next/navigation';
+import { formatCoins } from '@/app/lib/utils';
 
 type UserProfileData = {
     display_name: string;
@@ -18,11 +20,17 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+
+    const router = useRouter();
+
     useEffect(() => {
         async function loadProfile() {
             try {
-                const sessionData = await getUserSession();
-                if (!sessionData) throw new Error('User not logged in');
+                const sessionData = await requireAuth();
+                if (!sessionData) {
+                    router.replace('/login');
+                    return;
+                }
 
                 const { userId, token } = sessionData;
                 const data = await fetchUserAllStats(userId, token);
@@ -81,7 +89,7 @@ export default function ProfilePage() {
                             <div className="flex items-center justify-center gap-1">
                                 <LucideCoins size={20} className="text-yellow-400" />
                                 <span className="text-yellow-300 font-bold">
-                                    {profile.wallet_balance.toLocaleString()}
+                                    {formatCoins(profile.wallet_balance)}
                                 </span>
                                 <span className="text-slate-400 text-sm">coins</span>
                             </div>

@@ -7,6 +7,8 @@ import UserInfo from '../../components/dashboard/UserInfo';
 import RecentActivity from '../../components/dashboard/RecentActivity';
 import { formatPlaytime } from '../../lib/utils';
 import { fetchUserNameBalancePlaytime, getUserSession } from '../../lib/supabaseApi';
+import { requireAuth } from '@/app/lib/auth';
+import { useRouter } from 'next/navigation';
 
 type UserProfileData = {
     total_playtime_seconds: number;
@@ -27,23 +29,27 @@ export default function DashboardPage() {
         { type: 'purchase' as const, description: 'Bought "Grand Piano Skin"', date: '2026-02-28' },
     ];
 
+    const router = useRouter();
 
     useEffect(() => {
         async function loadProfile() {
             try {
                 setLoading(true);
 
-                // Get user ID + JWT
-                const sessionData = await getUserSession();
-                if (!sessionData) throw new Error('User not logged in');
+
+                const sessionData = await requireAuth();
+                if (!sessionData) {
+                    router.replace('/login');
+                    return;
+                }
 
                 const { userId, token } = sessionData;
 
-                // Fetch profile from your Supabase Edge Function
+
                 const profile: UserProfileData = await fetchUserNameBalancePlaytime(userId, token);
                 console.log("Profile response:", profile);
 
-                // Update state
+
                 setUser({
                     username: profile.display_name ?? sessionData.userId,
                     playtime: profile.total_playtime_seconds,
