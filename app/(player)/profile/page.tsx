@@ -15,10 +15,17 @@ type UserProfileData = {
     wallet_balance: number;
 };
 
+type MostUsedDeviceData = {
+    device_name: string;
+    nr_keys: number;
+    device_playtime_seconds: number;
+};
+
 export default function ProfilePage() {
     const [profile, setProfile] = useState<UserProfileData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [mostUsedDevice, setMostUsedDevice] = useState<MostUsedDeviceData | null>(null);
 
 
     const router = useRouter();
@@ -36,12 +43,23 @@ export default function ProfilePage() {
                 const data = await fetchUserAllStats(userId, token);
                 console.log("Profile response:", data);
 
-                setProfile({
-                    display_name: data.display_name,
-                    email: data.email,
-                    total_playtime_seconds: data.total_playtime_seconds,
-                    wallet_balance: data.wallet_balance,
-                });
+                if (data.profile) {
+                    setProfile({
+                        display_name: data.profile.display_name,
+                        email: data.profile.email,
+                        total_playtime_seconds: data.profile.total_playtime_seconds,
+                        wallet_balance: data.profile.wallet_balance,
+                    });
+                }
+
+                if (data.mostUsedDevice) {
+                    setMostUsedDevice({
+                        device_name: data.mostUsedDevice.device_name,
+                        nr_keys: data.mostUsedDevice.nr_keys,
+                        device_playtime_seconds: data.mostUsedDevice.device_playtime ?? data.mostUsedDevice.device_playtime_seconds ?? 0,
+                    });
+                }
+
             } catch (err: any) {
                 setError(err.message || 'Failed to load profile');
             } finally {
@@ -95,6 +113,20 @@ export default function ProfilePage() {
                             </div>
                         }
                     />
+
+                    <StatCard
+                        label="Most Used Device"
+                        value={
+                            <div className="flex flex-col items-center">
+                                <span className="font-bold text-lg">
+                                    {mostUsedDevice?.device_name ?? "PC keyboard"}
+                                </span>
+                                <span className="text-slate-400 text-sm">
+                                    {mostUsedDevice?.nr_keys ?? 18} keys &middot; {formatPlaytime(mostUsedDevice?.device_playtime_seconds ?? profile.total_playtime_seconds)}
+                                </span>
+                            </div>
+                        }
+                    />
                 </div>
 
             </div>
@@ -105,8 +137,11 @@ export default function ProfilePage() {
 function StatCard({ label, value }: { label: string; value: string | number | React.ReactNode }) {
     return (
         <div className="bg-slate-800 p-6 rounded-xl text-center">
-            <div className="text-2xl font-bold">{value}</div>
-            <p className="text-slate-400 text-sm">{label}</p>
+            {/* Value */}
+            <div className="text-2xl font-bold text-white mb-1">{value}</div>
+
+            {/* Label */}
+            <p className="text-indigo-400 font-bold text-sm">{label}</p>
         </div>
     );
 }

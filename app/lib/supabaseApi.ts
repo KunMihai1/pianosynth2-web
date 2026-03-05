@@ -49,7 +49,10 @@ export async function fetchUserAllStats(userId: string, token: string) {
     }
 
     const data = await res.json();
-    return data.profile;
+    return {
+        profile: data.profile,
+        mostUsedDevice: data.most_used_device
+    };
 }
 
 export async function fetchAllNameBalancePlaytime(token: string) {
